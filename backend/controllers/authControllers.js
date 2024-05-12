@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import User from "../models/userModle.js";
+import User from "../models/userModel.js";
 import { generateTokenAndSetCookie } from "../lib/utils/generateToken.js";
 
 //===============SIGNUP(REGISTRATION)==============
