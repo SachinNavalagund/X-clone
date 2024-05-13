@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import { v2 as cloudinary } from "cloudinary";
 
-import authRoutes from "./routes/authRoutes.js";
+import authRoute from "./routes/authRoute.js";
 import userRoutes from "./routes/userRoutes.js";
 import postRoutes from "./routes/postRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
@@ -27,7 +27,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true })); //to pass form data using url encoded
 app.use(cookieParser()); //to get cookies from request
 
-app.use("/api/auth", authRoutes);
+app.use("/api/auth", authRoute);
 app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/notification", notificationRoutes);
