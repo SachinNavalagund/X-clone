@@ -13,7 +13,7 @@ import {
 import { toast } from "react-hot-toast";
 
 import LoadingSpinner from "./LoadingSpinner";
-// import { formatPostDate } from "../../utils/date";
+import { formatPostDate } from "../../utils/date";
 
 const Post = ({ post }) => {
   const [comment, setComment] = useState("");
@@ -30,7 +30,7 @@ const Post = ({ post }) => {
 
   const isMyPost = authUser._id === post.user._id;
 
-  const formattedDate = "1hr";
+  const formattedDate = formatPostDate(post.createdAt);
 
   const { mutate: deletePost, isPending: isDeleting } =
     useMutation({
