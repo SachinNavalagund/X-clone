@@ -113,7 +113,10 @@ const Sidebar = () => {
                 className="w-5 h-5 cursor-pointer"
                 onClick={(e) => {
                   e.preventDefault();
-
+                  // <Navigate to="/login" />;
+                  // queryClient.invalidateQueries({
+                  //   queryKey: ["authUser"],
+                  // });
                   logout();
                 }}
               />
