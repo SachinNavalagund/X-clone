@@ -23,7 +23,10 @@ const Post = ({ post }) => {
   const queryClient = useQueryClient();
   const postOwner = post.user;
 
-  const isLiked = post.likes.includes(authUser._id);
+  // const isLiked = post.likes.includes(authUser._id);
+  const isLiked = post.likes.includes(
+    authUser._id.toString()
+  );
 
   const isMyPost = authUser._id === post.user._id;
 
@@ -33,15 +36,15 @@ const Post = ({ post }) => {
     useMutation({
       mutationFn: async () => {
         try {
-          const response = await fetch(
+          const res = await fetch(
             `/api/posts/${post._id}`,
             {
               method: "DELETE",
             }
           );
-          const data = await response.json();
+          const data = await res.json();
 
-          if (!response.ok) {
+          if (!res.ok) {
             throw new Error(
               data.error || "Something went wrong"
             );
@@ -63,14 +66,14 @@ const Post = ({ post }) => {
     useMutation({
       mutationFn: async () => {
         try {
-          const response = await fetch(
+          const res = await fetch(
             `/api/posts/like/${post._id}`,
             {
               method: "POST",
             }
           );
-          const data = await response.json();
-          if (!response.ok) {
+          const data = await res.json();
+          if (!res.ok) {
             throw new Error(
               data.error || "Something went wrong"
             );
@@ -80,18 +83,9 @@ const Post = ({ post }) => {
           throw new Error(error);
         }
       },
-      onSuccess: (updatedLikes) => {
-        // this is not the best UX, bc it will refetch all posts
-        // queryClient.invalidateQueries({ queryKey: ["posts"] });
-
-        // instead, update the cache directly for that post
-        queryClient.setQueryData(["posts"], (oldData) => {
-          return oldData.map((p) => {
-            if (p._id === post._id) {
-              return { ...p, likes: updatedLikes };
-            }
-            return p;
-          });
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ["posts"],
         });
       },
       onError: (error) => {
