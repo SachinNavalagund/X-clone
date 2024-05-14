@@ -23,7 +23,7 @@ const app = express();
 // eslint-disable-next-line no-undef
 const PORT = process.env.PORT || 6000;
 
-app.use(express.json());
+app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ extended: true })); //to pass form data using url encoded
 app.use(cookieParser()); //to get cookies from request
 
