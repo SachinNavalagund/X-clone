@@ -16,7 +16,7 @@ export const createPost = async (request, response) => {
     //checking user exist or not
     const user = await User.findById(userId);
     if (!user) {
-      response.status(400).json({
+      response.status(404).json({
         error: "User not found",
       });
     }
@@ -30,7 +30,8 @@ export const createPost = async (request, response) => {
 
     //if there is img then upload it to cloudinary
     if (img) {
-      const uploadedResponse = await cloudinary.uploader.upload(img);
+      const uploadedResponse =
+        await cloudinary.uploader.upload(img);
       img = uploadedResponse.secure_url;
     }
 
@@ -45,7 +46,10 @@ export const createPost = async (request, response) => {
     //send resposne
     response.status(201).json(newPost);
   } catch (error) {
-    console.log("Error in createPost controller", error.message);
+    console.log(
+      "Error in createPost controller",
+      error.message
+    );
     response.status(400).json({
       error: "Internal server error",
     });
@@ -66,9 +70,12 @@ export const deletePost = async (request, response) => {
     }
 
     //checking the owner of the post
-    if (post.user.toString() !== request.user._id.toString()) {
+    if (
+      post.user.toString() !== request.user._id.toString()
+    ) {
       return response.status(401).json({
-        error: "You are not the authorized person to delete the post",
+        error:
+          "You are not the authorized person to delete the post",
       });
     }
 
@@ -86,7 +93,10 @@ export const deletePost = async (request, response) => {
       message: "Post has been deleted successfully",
     });
   } catch (error) {
-    console.log("Error in deletePost controller", error.message);
+    console.log(
+      "Error in deletePost controller",
+      error.message
+    );
     response.status(500).json({
       error: "Internal server error",
     });
@@ -127,9 +137,13 @@ export const commentPost = async (request, response) => {
     //save to DB
     await post.save();
 
-    response.status(201).json(post);
+    response.status(200).json(post);
   } catch (error) {
-    console.log("Error in commentPost controller", error.message, error);
+    console.log(
+      "Error in commentPost controller",
+      error.message,
+      error
+    );
     response.status(500).json({
       error: "Internal server error",
     });
@@ -137,7 +151,10 @@ export const commentPost = async (request, response) => {
 };
 
 //================LIKE POST====================
-export const likeOrUnlikePost = async (request, response) => {
+export const likeOrUnlikePost = async (
+  request,
+  response
+) => {
   try {
     //sending post id to param
     const { id: postId } = request.params;
@@ -158,7 +175,10 @@ export const likeOrUnlikePost = async (request, response) => {
 
     if (userLikedPost) {
       //unlike the post, pull like count from likes array
-      await Post.updateOne({ _id: postId }, { $pull: { likes: userId } });
+      await Post.updateOne(
+        { _id: postId },
+        { $pull: { likes: userId } }
+      );
 
       //we need to pull the postid from the liked posts if user unlike
       await User.updateOne(
@@ -196,7 +216,10 @@ export const likeOrUnlikePost = async (request, response) => {
       });
     }
   } catch (error) {
-    console.log("Error in likeOrUnlikePost controller", error.message);
+    console.log(
+      "Error in likeOrUnlikePost controller",
+      error.message
+    );
     response.status(500).json({
       error: "Internal server error",
     });
@@ -229,7 +252,10 @@ export const getAllPost = async (request, response) => {
       },
     });
   } catch (error) {
-    console.log("Error in getAllPost controller", error.message);
+    console.log(
+      "Error in getAllPost controller",
+      error.message
+    );
     response.status(500).json({
       error: "Internal server error",
     });
@@ -243,9 +269,14 @@ export const getLikedPost = async (request, response) => {
   try {
     //find user by id
     const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ error: "User not found" });
+    if (!user)
+      return res
+        .status(404)
+        .json({ error: "User not found" });
 
-    const likedPosts = await Post.find({ _id: { $in: user.likedPosts } })
+    const likedPosts = await Post.find({
+      _id: { $in: user.likedPosts },
+    })
       .populate({
         path: "user",
         select: "-password",
@@ -257,7 +288,10 @@ export const getLikedPost = async (request, response) => {
 
     response.status(200).json(likedPosts);
   } catch (error) {
-    console.log("Error in getLikedPost controller", error.message);
+    console.log(
+      "Error in getLikedPost controller",
+      error.message
+    );
     response.status(500).json({
       error: "Internal server error",
     });
@@ -265,17 +299,25 @@ export const getLikedPost = async (request, response) => {
 };
 
 //================GET FOLLOWING POST====================
-export const getFollowingPost = async (request, response) => {
+export const getFollowingPost = async (
+  request,
+  response
+) => {
   try {
     //getting user
     const userId = request.user._id;
     //finding user
     const user = await User.findById(userId);
-    if (!user) return res.status(404).json({ error: "User not found" });
+    if (!user)
+      return res
+        .status(404)
+        .json({ error: "User not found" });
 
     const following = user.following;
 
-    const feedPosts = await Post.find({ user: { $in: following } })
+    const feedPosts = await Post.find({
+      user: { $in: following },
+    })
       .sort({ createdAt: -1 })
       .populate({
         path: "user",
@@ -288,7 +330,10 @@ export const getFollowingPost = async (request, response) => {
 
     response.status(200).json(feedPosts);
   } catch (error) {
-    console.log("Error in getFollowingPost controller", error.message);
+    console.log(
+      "Error in getFollowingPost controller",
+      error.message
+    );
     response.status(500).json({
       error: "Internal server error",
     });
@@ -304,7 +349,9 @@ export const getUserPost = async (request, response) => {
     //checking user
     const user = await User.findOne({ username });
     if (!user) {
-      return response.status(404).json({ error: "User not found" });
+      return response
+        .status(404)
+        .json({ error: "User not found" });
     }
 
     //getting posts which has been created by user
@@ -321,7 +368,10 @@ export const getUserPost = async (request, response) => {
 
     response.status(200).json(post);
   } catch (error) {
-    console.log("Error in getUserPost controller", error.message);
+    console.log(
+      "Error in getUserPost controller",
+      error.message
+    );
     response.status(500).json({
       error: "Internal server error",
     });
