@@ -13,7 +13,7 @@ import {
 
 const routes = express.Router();
 
-routes.get("/allpost", protectRoute, getAllPost);
+routes.get("/all", protectRoute, getAllPost);
 routes.get("/following", protectRoute, getFollowingPost);
 routes.get("/likes/:id", protectRoute, getLikedPost);
 routes.get("/user/:username", protectRoute, getUserPost);

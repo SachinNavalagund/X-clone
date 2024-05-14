@@ -10,8 +10,10 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import toast from "react-hot-toast";
+import { toast } from "react-hot-toast";
+
 import LoadingSpinner from "./LoadingSpinner";
+// import { formatPostDate } from "../../utils/date";
 
 const Post = ({ post }) => {
   const [comment, setComment] = useState("");
@@ -20,6 +22,7 @@ const Post = ({ post }) => {
   });
   const queryClient = useQueryClient();
   const postOwner = post.user;
+
   const isLiked = post.likes.includes(authUser._id);
 
   const isMyPost = authUser._id === post.user._id;
@@ -30,15 +33,15 @@ const Post = ({ post }) => {
     useMutation({
       mutationFn: async () => {
         try {
-          const res = await fetch(
+          const response = await fetch(
             `/api/posts/${post._id}`,
             {
               method: "DELETE",
             }
           );
-          const data = await res.json();
+          const data = await response.json();
 
-          if (!res.ok) {
+          if (!response.ok) {
             throw new Error(
               data.error || "Something went wrong"
             );
@@ -60,14 +63,14 @@ const Post = ({ post }) => {
     useMutation({
       mutationFn: async () => {
         try {
-          const res = await fetch(
+          const response = await fetch(
             `/api/posts/like/${post._id}`,
             {
               method: "POST",
             }
           );
-          const data = await res.json();
-          if (!res.ok) {
+          const data = await response.json();
+          if (!response.ok) {
             throw new Error(
               data.error || "Something went wrong"
             );

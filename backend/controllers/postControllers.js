@@ -244,13 +244,7 @@ export const getAllPost = async (request, response) => {
       return response.status(200).json([]);
     }
 
-    response.status(200).json({
-      status: "success",
-      postCount: posts.length,
-      data: {
-        posts,
-      },
-    });
+    response.status(200).json(posts);
   } catch (error) {
     console.log(
       "Error in getAllPost controller",
