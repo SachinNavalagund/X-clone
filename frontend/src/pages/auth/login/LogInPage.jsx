@@ -5,6 +5,11 @@ import XSvg from "../../../components/svgs/X";
 
 import { MdOutlineMail } from "react-icons/md";
 import { MdPassword } from "react-icons/md";
+import {
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
+import toast from "react-hot-toast";
 
 const LogInPage = () => {
   const [formData, setFormData] = useState({
@@ -12,9 +17,54 @@ const LogInPage = () => {
     password: "",
   });
 
+  const queryClient = useQueryClient();
+
+  const {
+    mutate: loginMutation,
+    error,
+    isPending,
+    isError,
+  } = useMutation({
+    mutationFn: async ({ username, password }) => {
+      try {
+        const response = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            username,
+            password,
+          }),
+        });
+
+        const data = await response.json();
+        if (!response.ok)
+          throw new Error(
+            data.error || "Somthing went wrong"
+          );
+
+        console.log(data);
+        return data;
+      } catch (error) {
+        console.error(error);
+        throw error;
+      }
+    },
+    onSuccess: () => {
+      //to refetch we are invalidating
+      queryClient.invalidateQueries({
+        queryKey: ["authUser"],
+      });
+    },
+    onError: () => {
+      toast.error("Loggin Failed");
+    },
+  });
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(formData);
+    loginMutation(formData);
   };
 
   const handleInputChange = (e) => {
@@ -23,8 +73,6 @@ const LogInPage = () => {
       [e.target.name]: e.target.value,
     });
   };
-
-  const isError = false;
 
   return (
     <div className="max-w-screen-xl mx-auto flex h-screen">
@@ -63,12 +111,10 @@ const LogInPage = () => {
             />
           </label>
           <button className="btn rounded-full btn-primary text-white">
-            Login
+            {isPending ? "Loading..." : "Login"}
           </button>
           {isError && (
-            <p className="text-red-500">
-              Something went wrong
-            </p>
+            <p className="text-red-500">{error.message}</p>
           )}
         </form>
         <div className="flex flex-col gap-2 mt-4">

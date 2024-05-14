@@ -8,6 +8,9 @@ import { FaUser } from "react-icons/fa";
 import { MdPassword } from "react-icons/md";
 import { MdDriveFileRenameOutline } from "react-icons/md";
 
+import { useMutation } from "@tanstack/react-query";
+import toast from "react-hot-toast";
+
 const SignUpPage = () => {
   const [formData, setFormData] = useState({
     email: "",
@@ -16,9 +19,50 @@ const SignUpPage = () => {
     password: "",
   });
 
+  const { mutate, error, isPending, isError } = useMutation(
+    {
+      mutationFn: async ({
+        email,
+        username,
+        fullName,
+        password,
+      }) => {
+        try {
+          const response = await fetch("/api/auth/signup", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email,
+              username,
+              fullName,
+              password,
+            }),
+          });
+          const data = await response.json();
+
+          if (!response.ok)
+            throw new Error(
+              data.error || "Somthing went wrong"
+            );
+
+          console.log(data);
+          return data;
+        } catch (error) {
+          console.error(error);
+          throw error;
+        }
+      },
+      onSuccess: () => {
+        toast.success("Account created successfully");
+      },
+    }
+  );
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(formData);
+    mutate(formData);
   };
 
   const handleInputChange = (e) => {
@@ -27,8 +71,6 @@ const SignUpPage = () => {
       [e.target.name]: e.target.value,
     });
   };
-
-  const isError = false;
 
   return (
     <div className="max-w-screen-xl mx-auto flex h-screen px-10">
@@ -90,12 +132,10 @@ const SignUpPage = () => {
             />
           </label>
           <button className="btn rounded-full btn-primary text-white">
-            Sign up
+            {isPending ? "Loading..." : "Sign up"}
           </button>
           {isError && (
-            <p className="text-red-500">
-              Something went wrong
-            </p>
+            <p className="text-red-500">{error.message}</p>
           )}
         </form>
         <div className="flex flex-col lg:w-2/3 gap-2 mt-4">
