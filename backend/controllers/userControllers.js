@@ -10,7 +10,9 @@ export const getUserProfile = async (request, response) => {
   const { username } = request.params;
   try {
     //getting user by username
-    const user = await User.findOne({ username }).select("-password");
+    const user = await User.findOne({ username }).select(
+      "-password"
+    );
 
     //checking user is present or not
     if (!user) {
@@ -22,7 +24,10 @@ export const getUserProfile = async (request, response) => {
     //if user found send response
     response.status(200).json(user);
   } catch (error) {
-    console.log("Error in getUserProfile controller", error.message);
+    console.log(
+      "Error in getUserProfile controller",
+      error.message
+    );
     response.status(500).json({
       error: "Internal server error",
     });
@@ -30,7 +35,10 @@ export const getUserProfile = async (request, response) => {
 };
 
 //=========FOLLOW UN FOLLOWER USER==========
-export const followUnfollowUser = async (request, response) => {
+export const followUnfollowUser = async (
+  request,
+  response
+) => {
   try {
     //getting id from params
     const { id } = request.params;
@@ -39,18 +47,24 @@ export const followUnfollowUser = async (request, response) => {
     const userToBeModified = await User.findById(id);
 
     //this is the current user
-    const currentUser = await User.findById(request.user._id);
+    const currentUser = await User.findById(
+      request.user._id
+    );
 
     //myself cannot follow me or unfollowme
     if (id === request.user._id.toString()) {
       return response
         .status(400)
-        .json({ error: "You cannot follow/unfollow userself" });
+        .json({
+          error: "You cannot follow/unfollow userself",
+        });
     }
 
     //checking if current user and user to be modified present or not
     if (!currentUser || !userToBeModified) {
-      return response.status(400).json({ error: "User not found" });
+      return response
+        .status(400)
+        .json({ error: "User not found" });
     }
 
     //all check passed then we need to go for follow or unfollow
@@ -100,7 +114,10 @@ export const followUnfollowUser = async (request, response) => {
       });
     }
   } catch (error) {
-    console.log("Error in followUnfollowUser controller", error.message);
+    console.log(
+      "Error in followUnfollowUser controller",
+      error.message
+    );
     response.status(500).json({
       error: "Internal server error",
     });
@@ -108,14 +125,17 @@ export const followUnfollowUser = async (request, response) => {
 };
 
 //==========GET SUGGESTED USERS============
-export const getSuggestedUsers = async (request, response) => {
+export const getSuggestedUsers = async (
+  request,
+  response
+) => {
   try {
     //we don't want our self to be in suggested users list, so excluding it first
     const userId = request.user._id;
 
-    const usersFollowedByMe = await User.findById(userId).select(
-      "following"
-    );
+    const usersFollowedByMe = await User.findById(
+      userId
+    ).select("following");
 
     //getting 10 users with mongoose aggregate function
     const users = await User.aggregate([
@@ -130,18 +150,24 @@ export const getSuggestedUsers = async (request, response) => {
     ]);
 
     //filtering out which i have followed before(these users should not be present in our suggested list)
-    const filteredUsers = users.filter((user) =>
-      usersFollowedByMe.following.includes(user._id)
+    const filteredUsers = users.filter(
+      (user) =>
+        !usersFollowedByMe.following.includes(user._id)
     );
 
     const suggestedUsers = filteredUsers.slice(0, 4);
 
     //not showing the password of suggested user
-    suggestedUsers.forEach((user) => (user.password = null));
+    suggestedUsers.forEach(
+      (user) => (user.password = null)
+    );
 
     response.status(200).json(suggestedUsers);
   } catch (error) {
-    console.log("Error in getSuggestedUsers controller", error.message);
+    console.log(
+      "Error in getSuggestedUsers controller",
+      error.message
+    );
     response.status(500).json({
       error: "Internal server error",
     });
@@ -170,7 +196,9 @@ export const updateUser = async (request, response) => {
     //checking user is present or not
     let user = await User.findById(userId);
     if (!user) {
-      return response.status(400).json({ message: "User not found" });
+      return response
+        .status(400)
+        .json({ message: "User not found" });
     }
 
     //===========UPDATE PASSWORD===========
@@ -180,13 +208,17 @@ export const updateUser = async (request, response) => {
       (!currentPassword && newPassword)
     ) {
       return response.status(400).json({
-        error: "Please provide both the current password and new password",
+        error:
+          "Please provide both the current password and new password",
       });
     }
 
     if (currentPassword && newPassword) {
       //comparing password using bcrypt
-      const isMatch = await bcrypt.compare(currentPassword, user.password);
+      const isMatch = await bcrypt.compare(
+        currentPassword,
+        user.password
+      );
 
       //if no match send error response
       if (!isMatch) {
@@ -218,9 +250,8 @@ export const updateUser = async (request, response) => {
         );
       }
       //uploading new image to cloudinary
-      const uploadedResponse = await cloudinary.uploader.upload(
-        profileImg
-      );
+      const uploadedResponse =
+        await cloudinary.uploader.upload(profileImg);
       profileImg = uploadedResponse.secure_url;
     }
 
@@ -232,7 +263,8 @@ export const updateUser = async (request, response) => {
           user.coverImg.split("/").pop().split(".")[0]
         );
       }
-      const uploadedResponse = await cloudinary.uploader.upload(coverImg);
+      const uploadedResponse =
+        await cloudinary.uploader.upload(coverImg);
       coverImg = uploadedResponse.secure_url;
     }
 
@@ -252,7 +284,10 @@ export const updateUser = async (request, response) => {
 
     return response.status(200).json(user);
   } catch (error) {
-    console.log("Error in updateUser controller", error.message);
+    console.log(
+      "Error in updateUser controller",
+      error.message
+    );
     response.status(500).json({
       error: "Internal server error",
     });
