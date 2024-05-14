@@ -1,4 +1,5 @@
 import express from "express";
+import path from "path";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import { v2 as cloudinary } from "cloudinary";
@@ -22,6 +23,7 @@ cloudinary.config({
 const app = express();
 // eslint-disable-next-line no-undef
 const PORT = process.env.PORT || 6000;
+const __dirname = path.resolve();
 
 app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ extended: true })); //to pass form data using url encoded
@@ -31,6 +33,23 @@ app.use("/api/auth", authRoute);
 app.use("/api/users", userRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/notification", notificationRoutes);
+
+if (process.env.NODE_ENV === "production") {
+  app.use(
+    express.static(path.join(__dirname, "/frontend/dist"))
+  );
+
+  app.get("*", (req, res) => {
+    res.sendFile(
+      path.resolve(
+        __dirname,
+        "frontend",
+        "dist",
+        "index.html"
+      )
+    );
+  });
+}
 
 // eslint-disable-next-line no-undef
 app.listen(PORT, () => {
